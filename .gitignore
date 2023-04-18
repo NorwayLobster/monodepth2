@@ -4,7 +4,9 @@ __pycache__
 *_disp.npy
 *.npz
 *.npy
+kitti
 kitti_data
+kitti_data_gt
 models
 git
 *.jpeg
