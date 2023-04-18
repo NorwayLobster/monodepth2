@@ -3,5 +3,14 @@ __pycache__
 *_disp.jpg
 *_disp.npy
 *.npz
+*.npy
 kitti_data
 models
+git
+*.jpeg
+*.zip
+*.onnx
+*.pth
+.DS_Store
+.idea
+*.txt

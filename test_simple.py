@@ -21,7 +21,7 @@ from torchvision import transforms, datasets
 import networks
 from layers import disp_to_depth
 from utils import download_model_if_doesnt_exist
-from evaluate_depth import STEREO_SCALE_FACTOR
+from de_evaluate import STEREO_SCALE_FACTOR
 
 
 def parse_args():
@@ -70,13 +70,15 @@ def test_simple(args):
         print("Warning: The --pred_metric_depth flag only makes sense for stereo-trained KITTI "
               "models. For mono-trained models, output depths will not in metric space.")
 
-    download_model_if_doesnt_exist(args.model_name)
-    model_path = os.path.join("models", args.model_name)
+    # download_model_if_doesnt_exist(args.model_name)
+    model_path = os.path.join("./", args.model_name)
+    # model_path = os.path.join("models", args.model_name)
     print("-> Loading model from ", model_path)
     encoder_path = os.path.join(model_path, "encoder.pth")
     depth_decoder_path = os.path.join(model_path, "depth.pth")
 
     # LOADING PRETRAINED MODEL
+
     print("   Loading pretrained encoder")
     encoder = networks.ResnetEncoder(18, False)
     loaded_dict_enc = torch.load(encoder_path, map_location=device)
@@ -125,20 +127,23 @@ def test_simple(args):
             input_image = pil.open(image_path).convert('RGB')
             original_width, original_height = input_image.size
             input_image = input_image.resize((feed_width, feed_height), pil.LANCZOS)
-            input_image = transforms.ToTensor()(input_image).unsqueeze(0)
+            # input_image = transforms.ToTensor()(input_image).unsqueeze(0)
 
             # PREDICTION
+
             input_image = input_image.to(device)
             features = encoder(input_image)
             outputs = depth_decoder(features)
-
             disp = outputs[("disp", 0)]
+
+            # disp = outputs[0]
             disp_resized = torch.nn.functional.interpolate(
                 disp, (original_height, original_width), mode="bilinear", align_corners=False)
+            scaled_disp, depth = disp_to_depth(disp, 0.1, 100)
 
             # Saving numpy file
             output_name = os.path.splitext(os.path.basename(image_path))[0]
-            scaled_disp, depth = disp_to_depth(disp, 0.1, 100)
+
             if args.pred_metric_depth:
                 name_dest_npy = os.path.join(output_directory, "{}_depth.npy".format(output_name))
                 metric_depth = STEREO_SCALE_FACTOR * depth.cpu().numpy()

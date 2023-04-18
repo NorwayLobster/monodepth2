@@ -8,10 +8,6 @@ This is the reference PyTorch implementation for training and testing depth esti
 >
 > [ICCV 2019 (arXiv pdf)](https://arxiv.org/abs/1806.01260)
 
-<p align="center">
-  <img src="assets/teaser.gif" alt="example input output gif" width="600" />
-</p>
-
 This code is for non-commercial use; please see the [license file](LICENSE) for terms.
 
 If you find our work useful in your research please consider citing our paper:
@@ -186,11 +182,11 @@ python export_gt_depth.py --data_path kitti_data --split eigen_benchmark
 
 The following example command evaluates the epoch 19 weights of a model named `mono_model`:
 ```shell
-python evaluate_depth.py --load_weights_folder ~/tmp/mono_model/models/weights_19/ --eval_mono
+python de_evaluate.py --load_weights_folder ~/tmp/mono_model/models/weights_19/ --eval_mono
 ```
 For stereo models, you must use the `--eval_stereo` flag (see note below):
 ```shell
-python evaluate_depth.py --load_weights_folder ~/tmp/stereo_model/models/weights_19/ --eval_stereo
+python de_evaluate.py --load_weights_folder ~/tmp/stereo_model/models/weights_19/ --eval_stereo
 ```
 If you train your own model with our code you are likely to see slight differences to the publication results due to randomization in the weights initialization and data loading.
 
@@ -212,7 +208,7 @@ Instead, a set of `.png` images will be saved to disk ready for upload to the ev
 Finally you can also use `evaluate_depth.py` to evaluate raw disparities (or inverse depth) from other methods by using the `--ext_disp_to_eval` flag:
 
 ```shell
-python evaluate_depth.py --ext_disp_to_eval ~/other_method_disp.npy
+python de_evaluate.py --ext_disp_to_eval ~/other_method_disp.npy
 ```
 
 

@@ -7,6 +7,7 @@
 from __future__ import absolute_import, division, print_function
 
 import os
+import sys
 
 import argparse
 import numpy as np
@@ -15,6 +16,9 @@ import PIL.Image as pil
 from utils import readlines
 from kitti_utils import generate_depth_map
 
+#
+# 1. 激光点云+ 相机标定==> gt
+# 2.  eigen / or eigen_benchmark
 
 def export_gt_depths_kitti():
 
@@ -46,13 +50,31 @@ def export_gt_depths_kitti():
             calib_dir = os.path.join(opt.data_path, folder.split("/")[0])
             velo_filename = os.path.join(opt.data_path, folder,
                                          "velodyne_points/data", "{:010d}.bin".format(frame_id))
-            gt_depth = generate_depth_map(calib_dir, velo_filename, 2, True)
+            print("calib_dir {}".format(calib_dir))
+            print("velo_filename {}".format(velo_filename))
+            gt_depth = generate_depth_map(calib_dir, velo_filename, 2, True) #2号相机
         elif opt.split == "eigen_benchmark":
             gt_depth_path = os.path.join(opt.data_path, folder, "proj_depth",
                                          "groundtruth", "image_02", "{:010d}.png".format(frame_id))
-            gt_depth = np.array(pil.open(gt_depth_path)).astype(np.float32) / 256
+            img = pil.open(gt_depth_path)
+            gt_depth = np.asarray(img, dtype='float32')/255
+            # gt_depth = np.array(img).astype(np.float32)
+            # gt_depth = np.array(pil.open(gt_depth_path)).astype(np.float32) / 256
 
+        print("shape: {}".format(gt_depth.shape))
+        # sys.exit("-1")
         gt_depths.append(gt_depth.astype(np.float32))
+
+    # sys.exit("-1")
+
+    # shape: (376, 1241)
+    # shape: (370, 1226)
+    # shape: (374, 1238)
+    # shape: (370, 1224)
+    # shape: (375, 1242)
+
+    # o1242 × 375
+    # 1224 × 370
 
     output_path = os.path.join(split_folder, "gt_depths.npz")
 
